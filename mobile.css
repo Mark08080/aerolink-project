@@ -1,0 +1,176 @@
+/* =====================================================================
+   PKRU Air Quality — ปรับหน้า Dashboard สำหรับโทรศัพท์และ iPad
+   โหลดหลัง index.css จึงทับกฎเดิมได้
+   ===================================================================== */
+
+html { -webkit-text-size-adjust: 100%; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+/* ---------- แจ้งเตือน: ไม่ทับปุ่มสลับธีม ---------- */
+.toast-container {
+    top: 72px;
+    right: 16px;
+    max-width: min(360px, calc(100vw - 32px));
+    pointer-events: none;
+}
+.toast { pointer-events: auto; }
+
+/* ---------- แถบสรุปด้านล่าง (โทรศัพท์) ---------- */
+.mobile-summary { display: none; }
+.sidebar-backdrop { display: none; }
+
+/* ---------- ปุ่ม/แท็บบนอุปกรณ์สัมผัส: ขยายพื้นที่กด ---------- */
+@media (pointer: coarse) {
+    .overview-history-tab,
+    .history-tab,
+    .compare-tabs .overview-history-tab { min-height: 34px; padding-left: 12px; padding-right: 12px; }
+    .compare-refresh { min-height: 34px; padding: 0 4px; }
+    .archive-open-btn { min-height: 44px; }
+    .detail-close, .history-download { min-width: 40px; min-height: 40px; }
+    .map-btn { width: 46px; height: 46px; }
+    .marker-outer:hover { transform: none; }
+}
+
+/* ---------- iPad / แท็บเล็ต ---------- */
+@media (min-width: 769px) and (max-width: 1180px) {
+    :root { --sidebar-width: 340px; }
+    .detail-panel { width: min(640px, calc(100% - 32px)); max-height: calc(100vh - 32px); overflow-y: auto; }
+}
+
+/* ---------- โทรศัพท์และแท็บเล็ตเล็ก ---------- */
+@media (max-width: 768px) {
+    /* ตัวหนังสือในแถบข้าง/หน้าต่างใหญ่ขึ้นเล็กน้อย อ่านง่ายบนจอเล็ก */
+    html { font-size: 17px; }
+
+    /* แถบข้าง: เต็มจอ มีพื้นหลังทึบด้านหลัง */
+    :root { --sidebar-width: min(420px, 100vw); }
+    .sidebar {
+        width: var(--sidebar-width);
+        height: 100dvh;
+        z-index: 1500;
+        padding-bottom: env(safe-area-inset-bottom);
+        transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+        overscroll-behavior: contain;
+    }
+    .sidebar-header { padding-top: max(0px, env(safe-area-inset-top)); }
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1400;
+        background: rgba(3, 6, 14, .55);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s ease;
+    }
+    body.sidebar-is-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
+    body.sidebar-is-open .mobile-toggle,
+    body.sidebar-is-open .mobile-summary { opacity: 0; pointer-events: none; }
+
+    /* ปุ่มบนแผนที่: หลบรอยบากและขอบจอ */
+    .mobile-toggle {
+        top: max(12px, env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+        width: 46px;
+        height: 46px;
+        z-index: 1200;
+        transition: opacity .2s ease;
+    }
+    .theme-toggle { top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); }
+
+    /* แจ้งเตือน: ย้ายไปด้านล่างกลางจอ เหนือแถบสรุป */
+    .toast-container {
+        top: auto;
+        right: 12px;
+        left: 12px;
+        bottom: calc(92px + env(safe-area-inset-bottom));
+        max-width: none;
+        align-items: center;
+    }
+    .toast { width: 100%; max-width: 420px; padding: 10px 14px; font-size: .78rem; }
+
+    /* แถบสรุปค่าเฉลี่ย กดเพื่อเปิดรายละเอียด */
+    .mobile-summary {
+        position: fixed;
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 1100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 64px;
+        padding: 10px 14px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+        color: var(--text-primary);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: opacity .2s ease, transform .2s ease;
+    }
+    .mobile-summary:active { transform: scale(.98); }
+    .ms-value {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        height: 44px;
+        border-radius: 10px;
+        background: var(--ms-color, #64748b);
+        color: #0b0f1a;
+        font: 700 1.05rem/1 var(--font-mono);
+    }
+    .ms-value small { margin-top: 2px; font: 600 .5rem var(--font-sans); opacity: .8; }
+    .ms-text { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 1px; }
+    .ms-text strong { overflow: hidden; font-size: .82rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+    .ms-text span { overflow: hidden; color: var(--text-muted); font-size: .66rem; white-space: nowrap; text-overflow: ellipsis; }
+    .ms-meta { display: flex; gap: 10px; color: var(--text-secondary); font: 500 .66rem var(--font-mono); white-space: nowrap; }
+    .ms-chevron { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+    @media (max-width: 360px) { .ms-meta { display: none; } }
+    body.sidebar-is-open .toast-container, body.detail-is-open .toast-container { bottom: calc(16px + env(safe-area-inset-bottom)); }
+    body.detail-is-open .mobile-summary { opacity: 0; pointer-events: none; transform: translateY(20px); }
+
+    /* หน้าต่างรายละเอียดคณะ: เป็นแผ่นเลื่อนจากด้านล่าง */
+    .detail-panel {
+        left: 0 !important;
+        right: 0;
+        bottom: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        max-height: 86dvh !important;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 18px 18px 0 0 !important;
+        padding: 22px 16px calc(18px + env(safe-area-inset-bottom)) !important;
+        transform: translateY(100%);
+    }
+    .detail-panel.active { transform: translateY(0); }
+    .detail-panel::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        width: 40px;
+        height: 4px;
+        margin-left: -20px;
+        border-radius: 2px;
+        background: rgba(148, 163, 184, .35);
+    }
+    .detail-readings { gap: 8px !important; }
+
+    /* ปุ่มแผนที่ของ Leaflet หลบแถบสรุป */
+    .leaflet-bottom { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
+
+/* ---------- โทรศัพท์แนวนอน (จอเตี้ย) ---------- */
+@media (max-width: 950px) and (max-height: 500px) {
+    .mobile-summary { min-height: 52px; padding: 6px 12px; }
+    .ms-value { height: 38px; }
+    .detail-panel { max-height: 92dvh !important; }
+}

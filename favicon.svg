@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">PKRU Air Quality</title>
+  <rect width="64" height="64" rx="14" fill="#0b0f1a"/>
+  <path d="M17 24h26M17 32h19M17 40h26" fill="none" stroke="#e0e7ff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="45" cy="32" r="4" fill="#22d3ee"/>
+</svg>
